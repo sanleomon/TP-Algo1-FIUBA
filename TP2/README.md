@@ -36,5 +36,3 @@ El proyecto se compila utilizando:
 
 ```bash
 gcc *.c utiles.o -o juego -std=c99 -Wall -Wconversion -Werror -lm
-
----
