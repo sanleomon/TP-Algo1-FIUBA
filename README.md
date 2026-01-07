@@ -1,6 +1,8 @@
 # Algoritmos I – Trabajo Práctico (FIUBA)
 
-Repositorio correspondiente al **Trabajo Práctico de la materia Algoritmos y Programación I** de la Facultad de Ingeniería de la Universidad de Buenos Aires (FIUBA).
+Repositorio correspondiente al **Trabajo Práctico de la materia Algoritmos y Programación I** 
+de la Facultad de Ingeniería de la Universidad de Buenos Aires (FIUBA),
+cursada durante el **primer cuatrimestre de 2022**.
 
 El proyecto consiste en el desarrollo incremental de un **juego en lenguaje C**, dividido en tres trabajos prácticos (TP1, TP2 y TP3), donde se aplican los conceptos fundamentales de programación estructurada y buenas prácticas.
 
