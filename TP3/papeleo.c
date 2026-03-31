@@ -506,4 +506,14 @@ void realizar_jugada(juego_t* juego){
         printf("Esa no es una opcion valida!\n");
         scanf(" %c", &respuesta);
     }
+    if (posicion_ocupada()){
+        if (respuesta == IZQUIERDA){
+            juego->jugador.posicion.col-=1;
+        } else if (respuesta == DERECHA){
+            juego->jugador.posicion.col+=1;
+        }
+        
+    }
+    
+    
 }
