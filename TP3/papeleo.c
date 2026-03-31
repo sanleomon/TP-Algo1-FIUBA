@@ -121,8 +121,7 @@ void recibir_obsequio(jugador_t** jugador, int nivel_actual, char personaje_tp1)
 }
 
 bool es_movimiento_valido(char caracter){
-    if (caracter == ARRIBA || caracter == ABAJO || caracter == IZQUIERDA 
-        || caracter == DERECHA || caracter == ROTACION_HORARIA 
+    if (caracter == IZQUIERDA || caracter == DERECHA || caracter == ROTACION_HORARIA 
         || caracter == ROTACION_ANTIHORARIA || caracter == UTILIZAR_MARTILLO 
         || caracter == UTILIZAR_EXTINTOR){
         return true;
@@ -309,7 +308,7 @@ void generar_papeleos(nivel_t* nivel, int cantidad_papeleos, int tamanio_terreno
 
 void inicializar_datos_jugador(jugador_t* jugador, int nivel_actual, 
     nivel_t* niveles, char personaje_tp_1){
-    jugador->posicion = niveles[nivel_actual - 1].pos_inicial_jugador;
+    jugador->posicion = niveles[nivel_actual].pos_inicial_jugador;
     jugador->ahuyenta_randall = false;
     jugador->movimientos_realizados = 0;
 
@@ -439,7 +438,7 @@ void generar_terreno(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], int tamanio
 
 void cargar_terreno(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], juego_t juego){
     cargar_paredes(terreno, juego.niveles[juego.nivel_actual]);
-    cargar_posicion_jugador(terreno, juego.niveles[juego.nivel_actual].pos_inicial_jugador);
+    cargar_posicion_jugador(terreno, juego.jugador.posicion);
     cargar_obstaculos(terreno, juego.niveles[juego.nivel_actual]);
     cargar_herramientas(terreno, juego.niveles[juego.nivel_actual]);
     cargar_papeleos(terreno, juego.niveles[juego.nivel_actual]);
@@ -462,8 +461,8 @@ void imprimir_terreno(juego_t juego){
     printf("Personaje obtenido: %c", juego.personaje_tp1);
     printf("\n");
     printf("Teclas para moverse: W (arriba), S (abajo), A (izquierda), D (derecha)\n");
-    printf("Tecla para usar un martillo: Z");
-    printf("Tecla para usar un extintor: C");
+    printf("Tecla para usar un martillo: Z\n");
+    printf("Tecla para usar un extintor: C\n");
 
     char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1];
 
@@ -485,6 +484,21 @@ void imprimir_terreno(juego_t juego){
     }
 }
 
+int estado_nivel(papeleo_t papeleos[MAX_PAPELEOS], int tope_papeleos){
+    int cantidad_recolectados = 0;
+    for (int i = 0; i < tope_papeleos; i++){
+        if (papeleos[i].recolectado == true){
+            cantidad_recolectados++;
+        }
+        
+    }
+
+    if (cantidad_recolectados == tope_papeleos){
+        return GANADO;
+    }
+    return JUGANDO;
+}
+
 int estado_juego(juego_t juego){
     if (juego.jugador.movimientos <= 0){
         return PERDIDO;
@@ -499,21 +513,28 @@ int estado_juego(juego_t juego){
 
 void realizar_jugada(juego_t* juego){
     char respuesta;
-
-    printf("\n");
     scanf(" %c", &respuesta);
+
     while (!es_movimiento_valido(respuesta)){
         printf("Esa no es una opcion valida!\n");
         scanf(" %c", &respuesta);
     }
-    if (posicion_ocupada()){
+
+    if (respuesta == IZQUIERDA || respuesta == DERECHA){
+        coordenada_t destino = juego->jugador.posicion;
+        
         if (respuesta == IZQUIERDA){
-            juego->jugador.posicion.col-=1;
-        } else if (respuesta == DERECHA){
-            juego->jugador.posicion.col+=1;
+            destino.col--;
+        } else {
+            destino.col++;
         }
         
+        nivel_t* nivel_actual = &juego->niveles[juego->nivel_actual];
+        
+        if (!superpone_con_pared(destino, nivel_actual->paredes, nivel_actual->tope_paredes)){
+            juego->jugador.posicion = destino;
+            juego->jugador.movimientos--;
+            juego->jugador.movimientos_realizados++;
+        }
     }
-    
-    
 }

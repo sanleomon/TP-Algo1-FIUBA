@@ -63,7 +63,7 @@ void inicializar_juego(juego_t* juego , char personaje_tp1);
 
 
 /*
- * El nivel se dará por terminado , si se reolectan todos los papeleos en el mismo.
+ * El nivel se dará por terminado , si se recolectan todos los papeleos en el mismo.
  * Devolverá:
  * -> 0 si el estado es jugando.
  * -> 1 si el estado es ganado.

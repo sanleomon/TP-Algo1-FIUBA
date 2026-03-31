@@ -12,12 +12,13 @@ int main(int argc, char const *argv[]){
     imprimir_terreno(juego);
     while (estado_juego(juego) == 0){
         realizar_jugada(&juego);
+        system("clear");
         imprimir_terreno(juego);
     }
     if (estado_juego(juego) == 1){
         printf("Ganaste\n");
     } else{
-        printf("Perdiste");
+        printf("Perdiste\n");
     }
     
     return 0;
