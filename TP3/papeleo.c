@@ -120,6 +120,13 @@ void recibir_obsequio(jugador_t** jugador, int nivel_actual, char personaje_tp1)
     }
 }
 
+void eliminar_herramienta(nivel_t* nivel, int posicion){
+    for (int i = posicion; i < nivel->tope_herramientas - 1; i++){
+        nivel->herramientas[i] = nivel->herramientas[i + 1];
+    }
+    nivel->tope_herramientas--;
+}
+
 bool es_movimiento_valido(char caracter){
     if (caracter == IZQUIERDA || caracter == DERECHA || caracter == ROTACION_HORARIA 
         || caracter == ROTACION_ANTIHORARIA || caracter == UTILIZAR_MARTILLO 
@@ -511,6 +518,73 @@ int estado_juego(juego_t juego){
     return 0;
 }
 
+void aplicar_colision(juego_t* juego){
+
+    nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
+    coordenada_t posicion_jugador = juego->jugador.posicion;
+    
+    int i = 0;
+    bool encontrado = false;
+    
+    while (i < nivel_actual.tope_obstaculos && !encontrado){
+        
+        if (superpone_con_jugador(posicion_jugador, 
+            nivel_actual.obstaculos[i].posicion)){
+                
+            encontrado = true;
+            
+            if (nivel_actual.obstaculos[i].tipo == FUEGOS){
+                juego->jugador.movimientos = 0;
+            } else if (nivel_actual.obstaculos[i].tipo == MEDIAS){
+                juego->jugador.movimientos -= 10;
+            }
+        }
+        i++;
+    }
+
+    i = 0;
+    encontrado = false;
+
+    while (i < nivel_actual.tope_herramientas && !encontrado){
+        if (superpone_con_jugador(posicion_jugador,
+            nivel_actual.herramientas[i].posicion)){
+
+            encontrado = true;
+
+            if (nivel_actual.herramientas[i].tipo == BOTELLA_GRITO){
+                juego->jugador.movimientos += 7;
+                eliminar_herramienta(&juego->niveles[juego->nivel_actual], i);
+            }
+            else if (nivel_actual.herramientas[i].tipo == INTERRUPTOR){
+                juego->jugador.ahuyenta_randall = !juego->jugador.ahuyenta_randall;
+            }
+        }
+        i++;
+    }
+}
+
+void aplicar_gravedad(juego_t* juego){
+    nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
+    coordenada_t abajo = juego->jugador.posicion;
+    abajo.fil++;
+
+    while (!superpone_con_pared(abajo, nivel_actual.paredes, nivel_actual.tope_paredes)
+           && juego->jugador.movimientos > 0){
+
+        juego->jugador.posicion.fil++;
+        aplicar_colision(juego);
+
+        if (juego->jugador.movimientos > 0){
+            system("clear");
+            imprimir_terreno(*juego);
+            detener_el_tiempo(1.0f);
+        }
+
+        abajo = juego->jugador.posicion;
+        abajo.fil++;
+    }
+}
+
 void realizar_jugada(juego_t* juego){
     char respuesta;
     scanf(" %c", &respuesta);
@@ -529,12 +603,18 @@ void realizar_jugada(juego_t* juego){
             destino.col++;
         }
         
-        nivel_t* nivel_actual = &juego->niveles[juego->nivel_actual];
+        nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
         
-        if (!superpone_con_pared(destino, nivel_actual->paredes, nivel_actual->tope_paredes)){
+        if (!superpone_con_pared(destino, nivel_actual.paredes, nivel_actual.tope_paredes)){
             juego->jugador.posicion = destino;
             juego->jugador.movimientos--;
             juego->jugador.movimientos_realizados++;
+
+            aplicar_colision(juego);   
+
+            if (juego->jugador.movimientos > 0){
+                aplicar_gravedad(juego);   
+            }
         }
     }
 }

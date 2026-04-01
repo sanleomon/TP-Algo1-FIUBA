@@ -16,8 +16,10 @@ int main(int argc, char const *argv[]){
         imprimir_terreno(juego);
     }
     if (estado_juego(juego) == 1){
+        printf("\n");
         printf("Ganaste\n");
     } else{
+        printf("\n");
         printf("Perdiste\n");
     }
     
