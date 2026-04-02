@@ -211,6 +211,22 @@ bool superpone_con_papeleo(coordenada_t coordenada, papeleo_t* papeleo,
     return superpuesto;
 }
 
+bool se_puede_recolectar(papeleo_t* papeleos, int tope_papeleos, int id_actual){
+    int i = 0;
+    bool se_puede = true;
+
+    while (i < tope_papeleos && se_puede){
+        if (papeleos[i].id_papeleo < id_actual &&
+            !papeleos[i].recolectado){
+
+            se_puede = false;
+        }
+        i++;
+    }
+
+    return se_puede;
+}
+
 void generar_fuegos(nivel_t* nivel, int cantidad_fuegos, int tamanio_terreno){
     coordenada_t coordenada;
 
@@ -557,6 +573,26 @@ void aplicar_colision(juego_t* juego){
             }
             else if (nivel_actual.herramientas[i].tipo == INTERRUPTOR){
                 juego->jugador.ahuyenta_randall = !juego->jugador.ahuyenta_randall;
+            }
+        }
+        i++;
+    }
+
+    i = 0;
+    encontrado = false;
+    
+    while (i < nivel_actual.tope_papeleos && !encontrado){
+        if (superpone_con_jugador(posicion_jugador, 
+            nivel_actual.papeleos[i].posicion)){
+                
+            encontrado = true;
+            
+            if (!nivel_actual.papeleos[i].recolectado && 
+                se_puede_recolectar(nivel_actual.papeleos, 
+                    nivel_actual.tope_papeleos, 
+                    nivel_actual.papeleos[i].id_papeleo)){
+
+                juego->niveles[juego->nivel_actual].papeleos[i].recolectado = true;
             }
         }
         i++;
