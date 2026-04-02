@@ -534,6 +534,50 @@ int estado_juego(juego_t juego){
     return 0;
 }
 
+coordenada_t rotar_coordenada_horaria(coordenada_t coordenada, int dimension){
+    coordenada_t nueva_coordenada;
+
+    nueva_coordenada.fil = coordenada.col;
+    nueva_coordenada.col = dimension - 1 - coordenada.fil;
+
+    return nueva_coordenada;
+}
+
+coordenada_t rotar_coordenada_antihoraria(coordenada_t coordenada, int dimension){
+    coordenada_t nueva_coordenada;
+
+    nueva_coordenada.fil = dimension - 1 - coordenada.col;
+    nueva_coordenada.col = coordenada.fil;
+
+    return nueva_coordenada;
+}
+
+void rotar_paredes_horario(nivel_t* nivel, int dimension){
+    for (int i = 0; i < nivel->tope_paredes; i++){
+        nivel->paredes[i] = rotar_coordenada_horaria(nivel->paredes[i], dimension);
+    }
+}
+
+void rotar_paredes_antihorario(nivel_t* nivel, int dimension){
+    for (int i = 0; i < nivel->tope_paredes; i++){
+        nivel->paredes[i] = rotar_coordenada_antihoraria(nivel->paredes[i], dimension);
+    }
+}
+
+void rotar_obstaculos_horario(nivel_t* nivel, int dimension){
+    for (int i = 0; i < nivel->tope_obstaculos; i++){
+        nivel->obstaculos[i].posicion =
+            rotar_coordenada_horaria(nivel->obstaculos[i].posicion, dimension);
+    }
+}
+
+void rotar_obstaculos_antihorario(nivel_t* nivel, int dimension){
+    for (int i = 0; i < nivel->tope_obstaculos; i++){
+        nivel->obstaculos[i].posicion =
+            rotar_coordenada_antihoraria(nivel->obstaculos[i].posicion, dimension);
+    }
+}
+
 void aplicar_colision(juego_t* juego){
 
     nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
@@ -652,5 +696,24 @@ void realizar_jugada(juego_t* juego){
                 aplicar_gravedad(juego);   
             }
         }
+
+    } else if (respuesta == ROTACION_HORARIA){
+        int dimension = obtener_dimension_terreno(juego->nivel_actual);
+
+        rotar_paredes_horario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_obstaculos_horario(&juego->niveles[juego->nivel_actual], dimension);
+            
+        juego->jugador.posicion = rotar_coordenada_horaria(juego->jugador.posicion, dimension);
+        juego->jugador.movimientos--;
+        juego->jugador.movimientos_realizados++;
+    } else if (respuesta == ROTACION_ANTIHORARIA){
+        int dimension = obtener_dimension_terreno(juego->nivel_actual);
+
+        rotar_paredes_antihorario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_obstaculos_antihorario(&juego->niveles[juego->nivel_actual], dimension);
+
+        juego->jugador.posicion = rotar_coordenada_antihoraria(juego->jugador.posicion, dimension);
+        juego->jugador.movimientos--;
+        juego->jugador.movimientos_realizados++;
     }
 }
