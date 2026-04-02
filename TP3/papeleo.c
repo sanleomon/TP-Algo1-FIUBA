@@ -578,6 +578,34 @@ void rotar_obstaculos_antihorario(nivel_t* nivel, int dimension){
     }
 }
 
+void rotar_herramientas_horario(nivel_t* nivel, int dimension){
+    for (int i = 0; i < nivel->tope_herramientas; i++){
+        nivel->herramientas[i].posicion =
+            rotar_coordenada_horaria(nivel->herramientas[i].posicion, dimension);
+    }
+}
+
+void rotar_herramientas_antihorario(nivel_t* nivel, int dimension){
+    for (int i = 0; i < nivel->tope_herramientas; i++){
+        nivel->herramientas[i].posicion =
+            rotar_coordenada_antihoraria(nivel->herramientas[i].posicion, dimension);
+    }
+}
+
+void rotar_papeleos_horario(nivel_t* nivel, int dimension){
+    for (int i = 0; i < nivel->tope_papeleos; i++){
+        nivel->papeleos[i].posicion =
+            rotar_coordenada_horaria(nivel->papeleos[i].posicion, dimension);
+    }
+}
+
+void rotar_papeleos_antihorario(nivel_t* nivel, int dimension){
+    for (int i = 0; i < nivel->tope_papeleos; i++){
+        nivel->papeleos[i].posicion =
+            rotar_coordenada_antihoraria(nivel->papeleos[i].posicion, dimension);
+    }
+}
+
 void aplicar_colision(juego_t* juego){
 
     nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
@@ -702,18 +730,31 @@ void realizar_jugada(juego_t* juego){
 
         rotar_paredes_horario(&juego->niveles[juego->nivel_actual], dimension);
         rotar_obstaculos_horario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_herramientas_horario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_papeleos_horario(&juego->niveles[juego->nivel_actual], dimension);
             
         juego->jugador.posicion = rotar_coordenada_horaria(juego->jugador.posicion, dimension);
         juego->jugador.movimientos--;
         juego->jugador.movimientos_realizados++;
+
+        if (juego->jugador.movimientos > 0){
+            aplicar_gravedad(juego);
+        }
+
     } else if (respuesta == ROTACION_ANTIHORARIA){
         int dimension = obtener_dimension_terreno(juego->nivel_actual);
 
         rotar_paredes_antihorario(&juego->niveles[juego->nivel_actual], dimension);
         rotar_obstaculos_antihorario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_herramientas_antihorario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_papeleos_antihorario(&juego->niveles[juego->nivel_actual], dimension);
 
         juego->jugador.posicion = rotar_coordenada_antihoraria(juego->jugador.posicion, dimension);
         juego->jugador.movimientos--;
         juego->jugador.movimientos_realizados++;
+
+        if (juego->jugador.movimientos > 0){
+            aplicar_gravedad(juego);
+        }
     }
 }
