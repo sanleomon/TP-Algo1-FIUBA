@@ -136,6 +136,11 @@ bool es_movimiento_valido(char caracter){
     return false;
 }
 
+bool es_direccion_martillo_valida(char direccion){
+    return (direccion == ARRIBA || direccion == ABAJO ||
+           direccion == IZQUIERDA || direccion == DERECHA);
+}
+
 bool superpone_con_pared(coordenada_t coordenada, coordenada_t* paredes, int tope_paredes){
     int i = 0;
     bool superpuesto = false;
@@ -225,6 +230,11 @@ bool se_puede_recolectar(papeleo_t* papeleos, int tope_papeleos, int id_actual){
     }
 
     return se_puede;
+}
+
+bool es_borde(coordenada_t coordenada, int dimension){
+    return (coordenada.fil == 0 || coordenada.fil == dimension - 1 ||
+            coordenada.col == 0 || coordenada.col == dimension - 1);
 }
 
 void generar_fuegos(nivel_t* nivel, int cantidad_fuegos, int tamanio_terreno){
@@ -483,7 +493,7 @@ void imprimir_terreno(juego_t juego){
     printf("Extintores: %d\n", juego.jugador.extintores);
     printf("Personaje obtenido: %c", juego.personaje_tp1);
     printf("\n");
-    printf("Teclas para moverse: W (arriba), S (abajo), A (izquierda), D (derecha)\n");
+    printf("Teclas para moverse: A (izquierda), D (derecha)\n");
     printf("Tecla para usar un martillo: Z\n");
     printf("Tecla para usar un extintor: C\n");
 
@@ -606,6 +616,67 @@ void rotar_papeleos_antihorario(nivel_t* nivel, int dimension){
     }
 }
 
+coordenada_t obtener_posicion_martillo(coordenada_t posicion_jugador, char direccion){
+    coordenada_t objetivo = posicion_jugador;
+
+    if (direccion == ARRIBA){
+        objetivo.fil--;
+    } else if (direccion == ABAJO){
+        objetivo.fil++;
+    } else if (direccion == IZQUIERDA){
+        objetivo.col--;
+    } else if (direccion == DERECHA){
+        objetivo.col++;
+    }
+
+    return objetivo;
+}
+
+void eliminar_pared(nivel_t* nivel, int indice){
+    for (int i = indice; i < nivel->tope_paredes - 1; i++){
+        nivel->paredes[i] = nivel->paredes[i + 1];
+    }
+
+    nivel->tope_paredes--;
+}
+
+void usar_martillo(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
+
+    int dimension = obtener_dimension_terreno(nivel_actual);
+    char direccion;
+
+    printf("\n");
+    printf("Elegi hacia donde queres usar el martillo:\n");
+    printf("W: arriba\n");
+    printf("S: abajo\n");
+    printf("A: izquierda\n");
+    printf("D: derecha\n");
+    scanf(" %c", &direccion);
+
+    while (!es_direccion_martillo_valida(direccion)){
+        printf("Direccion invalida. Elegi W, S, A o D.\n");
+        scanf(" %c", &direccion);
+    }
+
+    coordenada_t objetivo = obtener_posicion_martillo(jugador->posicion, direccion);
+
+    int i = 0;
+    bool encontrada = false;
+
+    while (i < nivel->tope_paredes && !encontrada){
+        if (nivel->paredes[i].fil == objetivo.fil &&
+            nivel->paredes[i].col == objetivo.col &&
+            !es_borde(nivel->paredes[i], dimension)){
+
+            eliminar_pared(nivel, i);
+            jugador->martillos--;
+            encontrada = true;
+        } else {
+            i++;
+        }
+    }
+}
+
 void aplicar_colision(juego_t* juego){
 
     nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
@@ -685,7 +756,7 @@ void aplicar_gravedad(juego_t* juego){
         if (juego->jugador.movimientos > 0){
             system("clear");
             imprimir_terreno(*juego);
-            detener_el_tiempo(1.0f);
+            detener_el_tiempo(0.8f);
         }
 
         abajo = juego->jugador.posicion;
@@ -755,6 +826,16 @@ void realizar_jugada(juego_t* juego){
 
         if (juego->jugador.movimientos > 0){
             aplicar_gravedad(juego);
+        }
+
+    } else if (respuesta == UTILIZAR_MARTILLO){
+        if (juego->jugador.martillos > 0){
+            usar_martillo(&juego->niveles[juego->nivel_actual], 
+                juego->nivel_actual, &juego->jugador);
+
+            if (juego->jugador.movimientos > 0){
+                aplicar_gravedad(juego);
+            }
         }
     }
 }
