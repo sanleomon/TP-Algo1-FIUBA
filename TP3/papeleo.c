@@ -141,6 +141,11 @@ bool es_direccion_martillo_valida(char direccion){
            direccion == IZQUIERDA || direccion == DERECHA);
 }
 
+bool es_direccion_extintor_valida(char direccion){
+    return (direccion == ARRIBA || direccion == IZQUIERDA 
+        || direccion == DERECHA);
+}
+
 bool superpone_con_pared(coordenada_t coordenada, coordenada_t* paredes, int tope_paredes){
     int i = 0;
     bool superpuesto = false;
@@ -632,12 +637,69 @@ coordenada_t obtener_posicion_martillo(coordenada_t posicion_jugador, char direc
     return objetivo;
 }
 
+coordenada_t obtener_posicion_extintor(coordenada_t posicion_jugador, char direccion){
+    coordenada_t objetivo = posicion_jugador;
+
+    if (direccion == ARRIBA){
+        objetivo.fil--;
+    } else if (direccion == IZQUIERDA){
+        objetivo.col--;
+    } else if (direccion == DERECHA){
+        objetivo.col++;
+    }
+
+    return objetivo;
+}
+
 void eliminar_pared(nivel_t* nivel, int indice){
     for (int i = indice; i < nivel->tope_paredes - 1; i++){
         nivel->paredes[i] = nivel->paredes[i + 1];
     }
 
     nivel->tope_paredes--;
+}
+
+void eliminar_fuego(nivel_t* nivel, int indice){
+    for (int i = indice; i < nivel->tope_obstaculos - 1; i++){
+        nivel->obstaculos[i] = nivel->obstaculos[i + 1];
+    }
+
+    nivel->tope_obstaculos--;
+}
+
+void usar_extintor(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
+
+    char direccion;
+
+    printf("\n");
+    printf("Elegi hacia donde queres usar el extintor:\n");
+    printf("W: arriba\n");
+    printf("A: izquierda\n");
+    printf("D: derecha\n");
+    scanf(" %c", &direccion);
+
+    while (!es_direccion_extintor_valida(direccion)){
+        printf("Direccion invalida. Elegi W, A o D.\n");
+        scanf(" %c", &direccion);
+    }
+
+    coordenada_t objetivo = obtener_posicion_extintor(jugador->posicion, direccion);
+
+    int i = 0;
+    bool encontrado = false;
+
+    while (i < nivel->tope_obstaculos && !encontrado){
+        if (nivel->obstaculos[i].posicion.fil == objetivo.fil &&
+            nivel->obstaculos[i].posicion.col == objetivo.col &&
+            nivel->obstaculos[i].tipo == FUEGOS){
+
+            eliminar_fuego(nivel, i);
+            jugador->extintores--;
+            encontrado = true;
+        } else {
+            i++;
+        }
+    }
 }
 
 void usar_martillo(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
@@ -756,7 +818,7 @@ void aplicar_gravedad(juego_t* juego){
         if (juego->jugador.movimientos > 0){
             system("clear");
             imprimir_terreno(*juego);
-            detener_el_tiempo(0.8f);
+            detener_el_tiempo(0.6f);
         }
 
         abajo = juego->jugador.posicion;
@@ -836,6 +898,21 @@ void realizar_jugada(juego_t* juego){
             if (juego->jugador.movimientos > 0){
                 aplicar_gravedad(juego);
             }
+        } else {
+            printf("\n");
+            printf("No te quedan martillos.\n");
+            detener_el_tiempo(0.6f);
         }
+
+    } else if (respuesta == UTILIZAR_EXTINTOR){
+        if (juego->jugador.extintores > 0){
+            usar_extintor(&juego->niveles[juego->nivel_actual], 
+                juego->nivel_actual, &juego->jugador);
+        } else {
+            printf("\n");
+            printf("No te quedan extintores.\n");
+            detener_el_tiempo(0.6f);
+        }
+   
     }
 }
