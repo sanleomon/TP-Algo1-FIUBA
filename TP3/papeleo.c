@@ -537,6 +537,14 @@ int estado_nivel(papeleo_t papeleos[MAX_PAPELEOS], int tope_papeleos){
     return JUGANDO;
 }
 
+void cambiar_nivel(juego_t* juego){
+    if (juego->nivel_actual < NIVEL_3){
+        juego->nivel_actual++;
+        inicializar_datos_jugador(&juego->jugador, juego->nivel_actual,
+            juego->niveles, juego->personaje_tp1);
+    }
+}
+
 int estado_juego(juego_t juego){
     if (juego.jugador.movimientos <= 0){
         return PERDIDO;
@@ -914,5 +922,11 @@ void realizar_jugada(juego_t* juego){
             detener_el_tiempo(0.6f);
         }
    
+    }
+    
+    if (estado_nivel(juego->niveles[juego->nivel_actual].papeleos, 
+        juego->niveles[juego->nivel_actual].tope_papeleos) == GANADO &&
+        juego->nivel_actual < NIVEL_3){
+        cambiar_nivel(juego);
     }
 }
