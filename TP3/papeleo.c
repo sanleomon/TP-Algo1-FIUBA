@@ -57,6 +57,10 @@ const char MIKE = 'W';
 #define ROTACION_HORARIA 'E'
 #define ROTACION_ANTIHORARIA 'Q'
 
+#define VALOR_RANDALL_NIVEL_1 7
+#define VALOR_RANDALL_NIVEL_2 5
+#define VALOR_RANDALL_NIVEL_3 3
+
 #define TERRENO_NIVEL_1 22
 #define TERRENO_NIVEL_2 17
 #define TERRENO_NIVEL_3 12
@@ -240,6 +244,26 @@ bool se_puede_recolectar(papeleo_t* papeleos, int tope_papeleos, int id_actual){
 bool es_borde(coordenada_t coordenada, int dimension){
     return (coordenada.fil == 0 || coordenada.fil == dimension - 1 ||
             coordenada.col == 0 || coordenada.col == dimension - 1);
+}
+
+int obtener_valor_randall(int nivel_actual){
+    if (nivel_actual == NIVEL_1){
+        return VALOR_RANDALL_NIVEL_1;
+    } else if (nivel_actual == NIVEL_2){
+        return VALOR_RANDALL_NIVEL_2;
+    } else {
+        return VALOR_RANDALL_NIVEL_3;
+    }
+}
+
+int obtener_cantidad_paredes_random(int nivel_actual){
+    if (nivel_actual == NIVEL_1){
+        return MOVIMIENTOS_NIVEL_1;
+    } else if (nivel_actual == NIVEL_2){
+        return MOVIMIENTOS_NIVEL_2;
+    } else {
+        return MOVIMIENTOS_NIVEL_3;
+    }
 }
 
 void generar_fuegos(nivel_t* nivel, int cantidad_fuegos, int tamanio_terreno){
@@ -675,6 +699,58 @@ void eliminar_fuego(nivel_t* nivel, int indice){
     nivel->tope_obstaculos--;
 }
 
+int obtener_indice_papeleo_random(nivel_t* nivel){
+    int indices[MAX_PAPELEOS];
+    int cantidad = 0;
+
+    int i = 0;
+    while (i < nivel->tope_papeleos){
+        if (!nivel->papeleos[i].recolectado){
+            indices[cantidad] = i;
+            cantidad++;
+        }
+        i++;
+    }
+
+    if (cantidad == 0){
+        return -1;
+    }
+
+    int elegido = rand() % cantidad;
+
+    return indices[elegido];
+}
+
+void mover_papeleo_random(nivel_t* nivel, int nivel_actual, jugador_t jugador){
+    int r = obtener_valor_randall(nivel_actual);
+
+    if (!jugador.ahuyenta_randall &&
+        jugador.movimientos_realizados % r == 0){
+
+        int indice_papeleo = obtener_indice_papeleo_random(nivel);
+
+        if (indice_papeleo != -1){
+            int dimension = obtener_dimension_terreno(nivel_actual);
+            coordenada_t nueva_posicion;
+
+            nueva_posicion.fil = rand() % dimension;
+            nueva_posicion.col = rand() % dimension;
+
+            while (superpone_con_pared(nueva_posicion, nivel->paredes, nivel->tope_paredes) ||
+                   superpone_con_obstaculo(nueva_posicion, nivel->obstaculos, nivel->tope_obstaculos) ||
+                   superpone_con_herramienta(nueva_posicion, nivel->herramientas, nivel->tope_herramientas) ||
+                   superpone_con_papeleo(nueva_posicion, nivel->papeleos, nivel->tope_papeleos) ||
+                   superpone_con_jugador(jugador.posicion, nueva_posicion)){
+
+                nueva_posicion.fil = rand() % dimension;
+                nueva_posicion.col = rand() % dimension;
+            }
+
+            nivel->papeleos[indice_papeleo].posicion = nueva_posicion;
+        }
+    }
+}
+
 void usar_extintor(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
 
     char direccion;
@@ -858,6 +934,8 @@ void realizar_jugada(juego_t* juego){
             juego->jugador.posicion = destino;
             juego->jugador.movimientos--;
             juego->jugador.movimientos_realizados++;
+            mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
+                juego->nivel_actual, juego->jugador);
 
             aplicar_colision(juego);   
 
@@ -877,6 +955,8 @@ void realizar_jugada(juego_t* juego){
         juego->jugador.posicion = rotar_coordenada_horaria(juego->jugador.posicion, dimension);
         juego->jugador.movimientos--;
         juego->jugador.movimientos_realizados++;
+        mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
+            juego->nivel_actual, juego->jugador);    
 
         if (juego->jugador.movimientos > 0){
             aplicar_gravedad(juego);
@@ -893,6 +973,8 @@ void realizar_jugada(juego_t* juego){
         juego->jugador.posicion = rotar_coordenada_antihoraria(juego->jugador.posicion, dimension);
         juego->jugador.movimientos--;
         juego->jugador.movimientos_realizados++;
+        mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
+            juego->nivel_actual, juego->jugador);
 
         if (juego->jugador.movimientos > 0){
             aplicar_gravedad(juego);
