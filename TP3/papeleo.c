@@ -751,6 +751,38 @@ void mover_papeleo_random(nivel_t* nivel, int nivel_actual, jugador_t jugador){
     }
 }
 
+int obtener_limite_paredes_random(int nivel_actual){
+    if (nivel_actual == NIVEL_1){
+        return MOVIMIENTOS_NIVEL_1;
+    } else if (nivel_actual == NIVEL_2){
+        return MOVIMIENTOS_NIVEL_2;
+    } else {
+        return MOVIMIENTOS_NIVEL_3;
+    }
+}
+
+void generar_pared_random(nivel_t* nivel, int nivel_actual, jugador_t jugador){
+    int dimension = obtener_dimension_terreno(nivel_actual);
+
+    coordenada_t nueva;
+
+    nueva.fil = rand() % dimension;
+    nueva.col = rand() % dimension;
+
+    while (superpone_con_pared(nueva, nivel->paredes, nivel->tope_paredes) ||
+           superpone_con_obstaculo(nueva, nivel->obstaculos, nivel->tope_obstaculos) ||
+           superpone_con_herramienta(nueva, nivel->herramientas, nivel->tope_herramientas) ||
+           superpone_con_papeleo(nueva, nivel->papeleos, nivel->tope_papeleos) ||
+           superpone_con_jugador(jugador.posicion, nueva)){
+
+        nueva.fil = rand() % dimension;
+        nueva.col = rand() % dimension;
+    }
+
+    nivel->paredes[nivel->tope_paredes] = nueva;
+    nivel->tope_paredes++;
+}
+
 void usar_extintor(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
 
     char direccion;
@@ -934,13 +966,20 @@ void realizar_jugada(juego_t* juego){
             juego->jugador.posicion = destino;
             juego->jugador.movimientos--;
             juego->jugador.movimientos_realizados++;
-            mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
-                juego->nivel_actual, juego->jugador);
 
             aplicar_colision(juego);   
 
             if (juego->jugador.movimientos > 0){
                 aplicar_gravedad(juego);   
+            }
+
+            mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
+                juego->nivel_actual, juego->jugador);
+
+            int limite = obtener_limite_paredes_random(juego->nivel_actual);
+            if (juego->jugador.movimientos_realizados <= limite){
+                generar_pared_random(&juego->niveles[juego->nivel_actual], 
+                    juego->nivel_actual, juego->jugador);
             }
         }
 
@@ -954,12 +993,19 @@ void realizar_jugada(juego_t* juego){
             
         juego->jugador.posicion = rotar_coordenada_horaria(juego->jugador.posicion, dimension);
         juego->jugador.movimientos--;
-        juego->jugador.movimientos_realizados++;
-        mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
-            juego->nivel_actual, juego->jugador);    
+        juego->jugador.movimientos_realizados++;    
 
         if (juego->jugador.movimientos > 0){
             aplicar_gravedad(juego);
+        }
+
+        mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
+            juego->nivel_actual, juego->jugador);
+
+        int limite = obtener_limite_paredes_random(juego->nivel_actual);
+        if (juego->jugador.movimientos_realizados <= limite){
+            generar_pared_random(&juego->niveles[juego->nivel_actual], 
+                juego->nivel_actual, juego->jugador);
         }
 
     } else if (respuesta == ROTACION_ANTIHORARIA){
@@ -973,11 +1019,18 @@ void realizar_jugada(juego_t* juego){
         juego->jugador.posicion = rotar_coordenada_antihoraria(juego->jugador.posicion, dimension);
         juego->jugador.movimientos--;
         juego->jugador.movimientos_realizados++;
-        mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
-            juego->nivel_actual, juego->jugador);
 
         if (juego->jugador.movimientos > 0){
             aplicar_gravedad(juego);
+        }
+
+        mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
+            juego->nivel_actual, juego->jugador);
+
+        int limite = obtener_limite_paredes_random(juego->nivel_actual);
+        if (juego->jugador.movimientos_realizados <= limite){
+            generar_pared_random(&juego->niveles[juego->nivel_actual], 
+                juego->nivel_actual, juego->jugador);
         }
 
     } else if (respuesta == UTILIZAR_MARTILLO){
