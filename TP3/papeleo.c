@@ -942,6 +942,39 @@ void aplicar_gravedad(juego_t* juego){
     }
 }
 
+void procesar_movimiento_lateral(juego_t* juego, char respuesta){
+    coordenada_t destino = juego->jugador.posicion;
+
+    if (respuesta == IZQUIERDA){
+        destino.col--;
+    } else {
+        destino.col++;
+    }
+
+    nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
+
+    if (!superpone_con_pared(destino, nivel_actual.paredes, nivel_actual.tope_paredes)){
+        juego->jugador.posicion = destino;
+        juego->jugador.movimientos--;
+        juego->jugador.movimientos_realizados++;
+
+        aplicar_colision(juego);
+
+        if (juego->jugador.movimientos > 0){
+            aplicar_gravedad(juego);
+        }
+
+        mover_papeleo_random(&juego->niveles[juego->nivel_actual],
+            juego->nivel_actual, juego->jugador);
+
+        int limite = obtener_limite_paredes_random(juego->nivel_actual);
+        if (juego->jugador.movimientos_realizados <= limite){
+            generar_pared_random(&juego->niveles[juego->nivel_actual],
+                juego->nivel_actual, juego->jugador);
+        }
+    }
+}
+
 void realizar_jugada(juego_t* juego){
     char respuesta;
     scanf(" %c", &respuesta);
@@ -952,7 +985,8 @@ void realizar_jugada(juego_t* juego){
     }
 
     if (respuesta == IZQUIERDA || respuesta == DERECHA){
-        coordenada_t destino = juego->jugador.posicion;
+        procesar_movimiento_lateral(juego, respuesta);
+        /*coordenada_t destino = juego->jugador.posicion;
         
         if (respuesta == IZQUIERDA){
             destino.col--;
@@ -981,7 +1015,7 @@ void realizar_jugada(juego_t* juego){
                 generar_pared_random(&juego->niveles[juego->nivel_actual], 
                     juego->nivel_actual, juego->jugador);
             }
-        }
+        }*/
 
     } else if (respuesta == ROTACION_HORARIA){
         int dimension = obtener_dimension_terreno(juego->nivel_actual);
