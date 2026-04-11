@@ -942,6 +942,17 @@ void aplicar_gravedad(juego_t* juego){
     }
 }
 
+void aplicar_eventos_post_movimiento(juego_t* juego){
+    mover_papeleo_random(&juego->niveles[juego->nivel_actual],
+        juego->nivel_actual, juego->jugador);
+
+    int limite = obtener_limite_paredes_random(juego->nivel_actual);
+    if (juego->jugador.movimientos_realizados <= limite){
+        generar_pared_random(&juego->niveles[juego->nivel_actual],
+            juego->nivel_actual, juego->jugador);
+    }
+}
+
 void procesar_movimiento_lateral(juego_t* juego, char respuesta){
     coordenada_t destino = juego->jugador.posicion;
 
@@ -964,14 +975,7 @@ void procesar_movimiento_lateral(juego_t* juego, char respuesta){
             aplicar_gravedad(juego);
         }
 
-        mover_papeleo_random(&juego->niveles[juego->nivel_actual],
-            juego->nivel_actual, juego->jugador);
-
-        int limite = obtener_limite_paredes_random(juego->nivel_actual);
-        if (juego->jugador.movimientos_realizados <= limite){
-            generar_pared_random(&juego->niveles[juego->nivel_actual],
-                juego->nivel_actual, juego->jugador);
-        }
+        aplicar_eventos_post_movimiento(juego);
     }
 }
 
@@ -1004,14 +1008,7 @@ void procesar_rotacion(juego_t* juego, char respuesta){
         aplicar_gravedad(juego);
     }
 
-    mover_papeleo_random(&juego->niveles[juego->nivel_actual],
-        juego->nivel_actual, juego->jugador);
-
-    int limite = obtener_limite_paredes_random(juego->nivel_actual);
-    if (juego->jugador.movimientos_realizados <= limite){
-        generar_pared_random(&juego->niveles[juego->nivel_actual],
-            juego->nivel_actual, juego->jugador);
-    }
+    aplicar_eventos_post_movimiento(juego);
 }
 
 void realizar_jugada(juego_t* juego){
@@ -1028,7 +1025,7 @@ void realizar_jugada(juego_t* juego){
 
     } else if (respuesta == ROTACION_HORARIA || respuesta == ROTACION_ANTIHORARIA){
         procesar_rotacion(juego, respuesta);
-        
+
     } else if (respuesta == UTILIZAR_MARTILLO){
         if (juego->jugador.martillos > 0){
             usar_martillo(&juego->niveles[juego->nivel_actual], 
