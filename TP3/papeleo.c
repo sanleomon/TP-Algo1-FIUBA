@@ -975,6 +975,45 @@ void procesar_movimiento_lateral(juego_t* juego, char respuesta){
     }
 }
 
+void procesar_rotacion(juego_t* juego, char respuesta){
+    int dimension = obtener_dimension_terreno(juego->nivel_actual);
+
+    if (respuesta == ROTACION_HORARIA){
+        rotar_paredes_horario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_obstaculos_horario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_herramientas_horario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_papeleos_horario(&juego->niveles[juego->nivel_actual], dimension);
+
+        juego->jugador.posicion =
+            rotar_coordenada_horaria(juego->jugador.posicion, dimension);
+
+    } else {
+        rotar_paredes_antihorario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_obstaculos_antihorario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_herramientas_antihorario(&juego->niveles[juego->nivel_actual], dimension);
+        rotar_papeleos_antihorario(&juego->niveles[juego->nivel_actual], dimension);
+
+        juego->jugador.posicion =
+            rotar_coordenada_antihoraria(juego->jugador.posicion, dimension);
+    }
+
+    juego->jugador.movimientos--;
+    juego->jugador.movimientos_realizados++;
+
+    if (juego->jugador.movimientos > 0){
+        aplicar_gravedad(juego);
+    }
+
+    mover_papeleo_random(&juego->niveles[juego->nivel_actual],
+        juego->nivel_actual, juego->jugador);
+
+    int limite = obtener_limite_paredes_random(juego->nivel_actual);
+    if (juego->jugador.movimientos_realizados <= limite){
+        generar_pared_random(&juego->niveles[juego->nivel_actual],
+            juego->nivel_actual, juego->jugador);
+    }
+}
+
 void realizar_jugada(juego_t* juego){
     char respuesta;
     scanf(" %c", &respuesta);
@@ -986,87 +1025,10 @@ void realizar_jugada(juego_t* juego){
 
     if (respuesta == IZQUIERDA || respuesta == DERECHA){
         procesar_movimiento_lateral(juego, respuesta);
-        /*coordenada_t destino = juego->jugador.posicion;
+
+    } else if (respuesta == ROTACION_HORARIA || respuesta == ROTACION_ANTIHORARIA){
+        procesar_rotacion(juego, respuesta);
         
-        if (respuesta == IZQUIERDA){
-            destino.col--;
-        } else {
-            destino.col++;
-        }
-        
-        nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
-        
-        if (!superpone_con_pared(destino, nivel_actual.paredes, nivel_actual.tope_paredes)){
-            juego->jugador.posicion = destino;
-            juego->jugador.movimientos--;
-            juego->jugador.movimientos_realizados++;
-
-            aplicar_colision(juego);   
-
-            if (juego->jugador.movimientos > 0){
-                aplicar_gravedad(juego);   
-            }
-
-            mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
-                juego->nivel_actual, juego->jugador);
-
-            int limite = obtener_limite_paredes_random(juego->nivel_actual);
-            if (juego->jugador.movimientos_realizados <= limite){
-                generar_pared_random(&juego->niveles[juego->nivel_actual], 
-                    juego->nivel_actual, juego->jugador);
-            }
-        }*/
-
-    } else if (respuesta == ROTACION_HORARIA){
-        int dimension = obtener_dimension_terreno(juego->nivel_actual);
-
-        rotar_paredes_horario(&juego->niveles[juego->nivel_actual], dimension);
-        rotar_obstaculos_horario(&juego->niveles[juego->nivel_actual], dimension);
-        rotar_herramientas_horario(&juego->niveles[juego->nivel_actual], dimension);
-        rotar_papeleos_horario(&juego->niveles[juego->nivel_actual], dimension);
-            
-        juego->jugador.posicion = rotar_coordenada_horaria(juego->jugador.posicion, dimension);
-        juego->jugador.movimientos--;
-        juego->jugador.movimientos_realizados++;    
-
-        if (juego->jugador.movimientos > 0){
-            aplicar_gravedad(juego);
-        }
-
-        mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
-            juego->nivel_actual, juego->jugador);
-
-        int limite = obtener_limite_paredes_random(juego->nivel_actual);
-        if (juego->jugador.movimientos_realizados <= limite){
-            generar_pared_random(&juego->niveles[juego->nivel_actual], 
-                juego->nivel_actual, juego->jugador);
-        }
-
-    } else if (respuesta == ROTACION_ANTIHORARIA){
-        int dimension = obtener_dimension_terreno(juego->nivel_actual);
-
-        rotar_paredes_antihorario(&juego->niveles[juego->nivel_actual], dimension);
-        rotar_obstaculos_antihorario(&juego->niveles[juego->nivel_actual], dimension);
-        rotar_herramientas_antihorario(&juego->niveles[juego->nivel_actual], dimension);
-        rotar_papeleos_antihorario(&juego->niveles[juego->nivel_actual], dimension);
-
-        juego->jugador.posicion = rotar_coordenada_antihoraria(juego->jugador.posicion, dimension);
-        juego->jugador.movimientos--;
-        juego->jugador.movimientos_realizados++;
-
-        if (juego->jugador.movimientos > 0){
-            aplicar_gravedad(juego);
-        }
-
-        mover_papeleo_random(&juego->niveles[juego->nivel_actual], 
-            juego->nivel_actual, juego->jugador);
-
-        int limite = obtener_limite_paredes_random(juego->nivel_actual);
-        if (juego->jugador.movimientos_realizados <= limite){
-            generar_pared_random(&juego->niveles[juego->nivel_actual], 
-                juego->nivel_actual, juego->jugador);
-        }
-
     } else if (respuesta == UTILIZAR_MARTILLO){
         if (juego->jugador.martillos > 0){
             usar_martillo(&juego->niveles[juego->nivel_actual], 
