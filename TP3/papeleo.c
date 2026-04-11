@@ -1011,6 +1011,32 @@ void procesar_rotacion(juego_t* juego, char respuesta){
     aplicar_eventos_post_movimiento(juego);
 }
 
+void procesar_martillo(juego_t* juego){
+    if (juego->jugador.martillos > 0){
+        usar_martillo(&juego->niveles[juego->nivel_actual],
+            juego->nivel_actual, &juego->jugador);
+
+        if (juego->jugador.movimientos > 0){
+            aplicar_gravedad(juego);
+        }
+    } else {
+        printf("\n");
+        printf("No te quedan martillos.\n");
+        detener_el_tiempo(0.6f);
+    }
+}
+
+void procesar_extintor(juego_t* juego){
+    if (juego->jugador.extintores > 0){
+        usar_extintor(&juego->niveles[juego->nivel_actual],
+            juego->nivel_actual, &juego->jugador);
+    } else {
+        printf("\n");
+        printf("No te quedan extintores.\n");
+        detener_el_tiempo(0.6f);
+    }
+}
+
 void realizar_jugada(juego_t* juego){
     char respuesta;
     scanf(" %c", &respuesta);
@@ -1027,28 +1053,10 @@ void realizar_jugada(juego_t* juego){
         procesar_rotacion(juego, respuesta);
 
     } else if (respuesta == UTILIZAR_MARTILLO){
-        if (juego->jugador.martillos > 0){
-            usar_martillo(&juego->niveles[juego->nivel_actual], 
-                juego->nivel_actual, &juego->jugador);
-
-            if (juego->jugador.movimientos > 0){
-                aplicar_gravedad(juego);
-            }
-        } else {
-            printf("\n");
-            printf("No te quedan martillos.\n");
-            detener_el_tiempo(0.6f);
-        }
+        procesar_martillo(juego);
 
     } else if (respuesta == UTILIZAR_EXTINTOR){
-        if (juego->jugador.extintores > 0){
-            usar_extintor(&juego->niveles[juego->nivel_actual], 
-                juego->nivel_actual, &juego->jugador);
-        } else {
-            printf("\n");
-            printf("No te quedan extintores.\n");
-            detener_el_tiempo(0.6f);
-        }
+        procesar_extintor(juego);
    
     }
     
