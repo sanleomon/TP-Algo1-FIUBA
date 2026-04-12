@@ -855,21 +855,19 @@ void usar_martillo(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
     }
 }
 
-void aplicar_colision(juego_t* juego){
-
+void aplicar_colision_obstaculos(juego_t* juego){
     nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
     coordenada_t posicion_jugador = juego->jugador.posicion;
-    
+
     int i = 0;
     bool encontrado = false;
-    
+
     while (i < nivel_actual.tope_obstaculos && !encontrado){
-        
-        if (superpone_con_jugador(posicion_jugador, 
+        if (superpone_con_jugador(posicion_jugador,
             nivel_actual.obstaculos[i].posicion)){
-                
+
             encontrado = true;
-            
+
             if (nivel_actual.obstaculos[i].tipo == FUEGOS){
                 juego->jugador.movimientos = 0;
             } else if (nivel_actual.obstaculos[i].tipo == MEDIAS){
@@ -878,9 +876,14 @@ void aplicar_colision(juego_t* juego){
         }
         i++;
     }
+}
 
-    i = 0;
-    encontrado = false;
+void aplicar_colision_herramientas(juego_t* juego){
+    nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
+    coordenada_t posicion_jugador = juego->jugador.posicion;
+
+    int i = 0;
+    bool encontrado = false;
 
     while (i < nivel_actual.tope_herramientas && !encontrado){
         if (superpone_con_jugador(posicion_jugador,
@@ -891,26 +894,30 @@ void aplicar_colision(juego_t* juego){
             if (nivel_actual.herramientas[i].tipo == BOTELLA_GRITO){
                 juego->jugador.movimientos += 7;
                 eliminar_herramienta(&juego->niveles[juego->nivel_actual], i);
-            }
-            else if (nivel_actual.herramientas[i].tipo == INTERRUPTOR){
+            } else if (nivel_actual.herramientas[i].tipo == INTERRUPTOR){
                 juego->jugador.ahuyenta_randall = !juego->jugador.ahuyenta_randall;
             }
         }
         i++;
     }
+}
 
-    i = 0;
-    encontrado = false;
-    
+void aplicar_colision_papeleos(juego_t* juego){
+    nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
+    coordenada_t posicion_jugador = juego->jugador.posicion;
+
+    int i = 0;
+    bool encontrado = false;
+
     while (i < nivel_actual.tope_papeleos && !encontrado){
-        if (superpone_con_jugador(posicion_jugador, 
+        if (superpone_con_jugador(posicion_jugador,
             nivel_actual.papeleos[i].posicion)){
-                
+
             encontrado = true;
-            
-            if (!nivel_actual.papeleos[i].recolectado && 
-                se_puede_recolectar(nivel_actual.papeleos, 
-                    nivel_actual.tope_papeleos, 
+
+            if (!nivel_actual.papeleos[i].recolectado &&
+                se_puede_recolectar(nivel_actual.papeleos,
+                    nivel_actual.tope_papeleos,
                     nivel_actual.papeleos[i].id_papeleo)){
 
                 juego->niveles[juego->nivel_actual].papeleos[i].recolectado = true;
@@ -918,6 +925,12 @@ void aplicar_colision(juego_t* juego){
         }
         i++;
     }
+}
+
+void aplicar_colision(juego_t* juego){
+    aplicar_colision_obstaculos(juego);
+    aplicar_colision_herramientas(juego);
+    aplicar_colision_papeleos(juego);
 }
 
 void aplicar_gravedad(juego_t* juego){
