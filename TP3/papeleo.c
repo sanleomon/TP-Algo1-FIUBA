@@ -483,10 +483,12 @@ void cargar_papeleos(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], nivel_t niv
     int col = 0;
 
     for (int i = 0; i < nivel.tope_papeleos; i++){
-        fil = nivel.papeleos[i].posicion.fil;
-        col = nivel.papeleos[i].posicion.col;
-
-        terreno[fil][col] = (char)(i + 1 + '0');
+        if (!nivel.papeleos[i].recolectado){
+            fil = nivel.papeleos[i].posicion.fil;
+            col = nivel.papeleos[i].posicion.col;
+            
+            terreno[fil][col] = (char)(i + 1 + '0');
+        }
     }
 }
 
