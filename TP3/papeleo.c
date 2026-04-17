@@ -65,6 +65,12 @@ const char MIKE = 'W';
 #define TERRENO_NIVEL_2 17
 #define TERRENO_NIVEL_3 12
 
+/* Pre-condiciones: El numero de nivel debe corresponder a un nivel entre (0,1,2)
+ *      y los punteros recibidos deben ser validos.
+ * Post-condiciones: Asigna las cantidades de fuegos, medias, botellas de gritos,
+ *      interruptores y papeleos correspondientes al nivel indicado, contemplando
+ *      los obsequios otorgados por el personaje obtenido en el TP1.
+ */
 void asignar_topes(int numero_nivel, int* tope_fuegos, int* tope_medias, int* tope_gritos, 
     int* tope_interruptores, int* tope_papeleos, char personaje_tp1){
 
@@ -104,6 +110,9 @@ void asignar_topes(int numero_nivel, int* tope_fuegos, int* tope_medias, int* to
     }
 }
 
+/* Pre-condiciones: El numero de nivel debe corresponder a un nivel entre (0,1,2)
+ * Post-condiciones: Devuelve la dimensión del terreno asociada al nivel recibido.
+ */
 int obtener_dimension_terreno(int numero_nivel){
     if (numero_nivel == NIVEL_1){
         return TERRENO_NIVEL_1;
@@ -114,6 +123,12 @@ int obtener_dimension_terreno(int numero_nivel){
     }
 }
 
+/* Pre-condiciones: El puntero al jugador debe ser valido, el nivel actual 
+ *          debe ser entre (0,1,2) y el personaje recibido debe ser 
+ *          entre (OLAF, STICH, JASMIN, RAYO).
+ * Post-condiciones: Modifica los atributos del jugador aplicando el obsequio
+ *      correspondiente al personaje obtenido en el TP1 para el nivel indicado.
+ */
 void recibir_obsequio(jugador_t** jugador, int nivel_actual, char personaje_tp1){
     if(personaje_tp1 == JASMIN){
         (**jugador).martillos += OBSEQUIO_JASMIN;     
@@ -124,6 +139,11 @@ void recibir_obsequio(jugador_t** jugador, int nivel_actual, char personaje_tp1)
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y la posicion recibida
+ *      debe corresponder a un indice valido dentro del vector de herramientas.
+ * Post-condiciones: Elimina la herramienta indicada del vector, desplazando los
+ *      elementos restantes y actualizando el tope de herramientas del nivel.
+ */
 void eliminar_herramienta(nivel_t* nivel, int posicion){
     for (int i = posicion; i < nivel->tope_herramientas - 1; i++){
         nivel->herramientas[i] = nivel->herramientas[i + 1];
@@ -131,6 +151,12 @@ void eliminar_herramienta(nivel_t* nivel, int posicion){
     nivel->tope_herramientas--;
 }
 
+/* Pre-condiciones: -
+ * Post-condiciones: Devuelve true si el caracter recibido corresponde a IZQUIERDA, 
+ * DERECHA, ROTACION_HORARIA, ROTACION_ANTIHORARIA, UTILIZAR_MARTILLO o 
+ * UTILIZAR_EXTINTOR. 
+ * En caso contrario, devuelve false.
+ */
 bool es_movimiento_valido(char caracter){
     if (caracter == IZQUIERDA || caracter == DERECHA || caracter == ROTACION_HORARIA 
         || caracter == ROTACION_ANTIHORARIA || caracter == UTILIZAR_MARTILLO 
@@ -140,16 +166,29 @@ bool es_movimiento_valido(char caracter){
     return false;
 }
 
+/* Pre-condiciones: -
+ * Post-condiciones: Devuelve true si la direccion ingresada es valida para el uso
+ *      del martillo (W, A, S o D). En caso contrario, devuelve false.
+ */
 bool es_direccion_martillo_valida(char direccion){
     return (direccion == ARRIBA || direccion == ABAJO ||
            direccion == IZQUIERDA || direccion == DERECHA);
 }
 
+/* Pre-condiciones: -
+ * Post-condiciones: Devuelve true si la dirección ingresada es valida para el uso
+ *      del extintor (W, A o D). En caso contrario, devuelve false.
+ */
 bool es_direccion_extintor_valida(char direccion){
     return (direccion == ARRIBA || direccion == IZQUIERDA 
         || direccion == DERECHA);
 }
 
+/* Pre-condiciones: El vector de paredes debe estar correctamente inicializado y
+ *      el tope debe corresponder a la cantidad de paredes cargadas.
+ * Post-condiciones: Devuelve true si la coordenada recibida coincide con alguna
+ *      pared del vector. En caso contrario, devuelve false.
+ */
 bool superpone_con_pared(coordenada_t coordenada, coordenada_t* paredes, int tope_paredes){
     int i = 0;
     bool superpuesto = false;
@@ -162,6 +201,11 @@ bool superpone_con_pared(coordenada_t coordenada, coordenada_t* paredes, int top
     return superpuesto;
 }
 
+/* Pre-condiciones: El vector de paredes debe estar correctamente inicializado y
+ *      el tope debe corresponder a la cantidad de paredes cargadas.
+ * Post-condiciones: Devuelve true si la coordenada recibida es adyacente en forma
+ *      no diagonal a alguna pared del vector. En caso contrario, devuelve false.
+ */
 bool es_adyacente_a_pared(coordenada_t coordenada, coordenada_t* paredes, int tope_paredes){
     int i = 0;
     bool adyacente = false;
@@ -180,6 +224,11 @@ bool es_adyacente_a_pared(coordenada_t coordenada, coordenada_t* paredes, int to
     return adyacente;
 }
 
+/* Pre-condiciones: El vector de obstáculos debe estar correctamente inicializado
+ *      y el tope debe corresponder a la cantidad de obstaculos cargados.
+ * Post-condiciones: Devuelve true si la coordenada recibida coincide con la
+ *      posicion de algun obstaculo. En caso contrario, devuelve false.
+ */
 bool superpone_con_obstaculo(coordenada_t coordenada, objeto_t* obstaculos, int tope_obstaculos){
     int i = 0;
     bool superpuesto = false;
@@ -193,10 +242,19 @@ bool superpone_con_obstaculo(coordenada_t coordenada, objeto_t* obstaculos, int 
     return superpuesto;
 }
 
+/* Pre-condiciones: -
+ * Post-condiciones: Devuelve true si la posicion del jugador coincide con la
+ *      coordenada recibida. En caso contrario, devuelve false.
+ */
 bool superpone_con_jugador(coordenada_t pos_jugador, coordenada_t coordenada){
     return (pos_jugador.fil == coordenada.fil && pos_jugador.col == coordenada.col);
 }
 
+/* Pre-condiciones: El vector de herramientas debe estar correctamente inicializado
+ *      y el tope debe corresponder a la cantidad de herramientas cargadas.
+ * Post-condiciones: Devuelve true si la coordenada recibida coincide con la
+ *      posicion de alguna herramienta. En caso contrario, devuelve false.
+ */
 bool superpone_con_herramienta(coordenada_t coordenada, objeto_t* herramientas, 
         int tope_herramientas){
     int i = 0;
@@ -211,6 +269,11 @@ bool superpone_con_herramienta(coordenada_t coordenada, objeto_t* herramientas,
     return superpuesto;
 }
 
+/* Pre-condiciones: El vector de papeleos debe estar correctamente inicializado
+ *      y el tope debe corresponder a la cantidad de papeleos cargados.
+ * Post-condiciones: Devuelve true si la coordenada recibida coincide con la
+ *      posicion de algun papeleo. En caso contrario, devuelve false.
+ */
 bool superpone_con_papeleo(coordenada_t coordenada, papeleo_t* papeleo, 
         int tope_papeleo){
     int i = 0;
@@ -225,6 +288,11 @@ bool superpone_con_papeleo(coordenada_t coordenada, papeleo_t* papeleo,
     return superpuesto;
 }
 
+/* Pre-condiciones: El vector de papeleos debe estar correctamente inicializado
+ *      y el id recibido debe corresponder a un papeleo valido del nivel.
+ * Post-condiciones: Devuelve true si todos los papeleos con id menor al indicado
+ *      ya fueron recolectados. En caso contrario, devuelve false.
+ */
 bool se_puede_recolectar(papeleo_t* papeleos, int tope_papeleos, int id_actual){
     int i = 0;
     bool se_puede = true;
@@ -241,11 +309,19 @@ bool se_puede_recolectar(papeleo_t* papeleos, int tope_papeleos, int id_actual){
     return se_puede;
 }
 
+/* Pre-condiciones: La dimension debe corresponder al tamaño del terreno del nivel.
+ * Post-condiciones: Devuelve true si la coordenada recibida pertenece al borde
+ *      del terreno. En caso contrario, devuelve false.
+ */
 bool es_borde(coordenada_t coordenada, int dimension){
     return (coordenada.fil == 0 || coordenada.fil == dimension - 1 ||
             coordenada.col == 0 || coordenada.col == dimension - 1);
 }
 
+/* Pre-condiciones: El nivel actual debe corresponder a un valor entre 0,1 o 2.
+ * Post-condiciones: Devuelve el valor R asociado al nivel, utilizado para
+ *      determinar cada cuantos movimientos Randall transporta un papeleo.
+ */
 int obtener_valor_randall(int nivel_actual){
     if (nivel_actual == NIVEL_1){
         return VALOR_RANDALL_NIVEL_1;
@@ -256,6 +332,10 @@ int obtener_valor_randall(int nivel_actual){
     }
 }
 
+/* Pre-condiciones: El nivel actual debe corresponder a un valor entre 0,1 o 2.
+ * Post-condiciones: Devuelve la cantidad maxima de movimientos durante los cuales
+ *      pueden generarse paredes aleatorias en el nivel.
+ */
 int obtener_cantidad_paredes_random(int nivel_actual){
     if (nivel_actual == NIVEL_1){
         return MOVIMIENTOS_NIVEL_1;
@@ -266,6 +346,13 @@ int obtener_cantidad_paredes_random(int nivel_actual){
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido, la cantidad de fuegos debe
+ *      ser no negativa y el tamaño del terreno debe corresponder al nivel.
+ * Post-condiciones: Genera la cantidad indicada de fuegos en posiciones aleatorias
+ *      validas del terreno, evitando superposiciones con paredes, obstaculos
+ *      existentes o la posicion inicial del jugador, y respetando la condicion
+ *      de adyacencia a paredes.
+ */
 void generar_fuegos(nivel_t* nivel, int cantidad_fuegos, int tamanio_terreno){
     coordenada_t coordenada;
 
@@ -286,6 +373,12 @@ void generar_fuegos(nivel_t* nivel, int cantidad_fuegos, int tamanio_terreno){
     
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido, la cantidad de medias debe
+ *      ser no negativa y el tamaño del terreno debe corresponder al nivel.
+ * Post-condiciones: Genera la cantidad indicada de medias en posiciones aleatorias
+ *      validas del terreno, evitando superposiciones con paredes, otros obstaculos
+ *      o la posicion inicial del jugador.
+ */
 void generar_medias(nivel_t* nivel, int cantidad_medias, int tamanio_terreno){
     coordenada_t coordenada;
     int indice_inicial = nivel->tope_obstaculos;
@@ -306,6 +399,12 @@ void generar_medias(nivel_t* nivel, int cantidad_medias, int tamanio_terreno){
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido, la cantidad de botellas debe
+ *      ser no negativa y el tamaño del terreno debe corresponder al nivel.
+ * Post-condiciones: Genera la cantidad indicada de botellas de gritos en posiciones
+ *      aleatorias validas del terreno, evitando superposiciones con paredes,
+ *      obstaculos, herramientas existentes o la posicion inicial del jugador.
+ */
 void generar_botellas_gritos(nivel_t* nivel, int cantidad_botellas, int tamanio_terreno){
     coordenada_t coordenada;
 
@@ -325,6 +424,12 @@ void generar_botellas_gritos(nivel_t* nivel, int cantidad_botellas, int tamanio_
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido, la cantidad de interruptores
+ *      debe ser no negativa y el tamaño del terreno debe corresponder al nivel.
+ * Post-condiciones: Genera la cantidad indicada de interruptores en posiciones
+ *      aleatorias validas del terreno, evitando superposiciones con paredes,
+ *      obstaculos, herramientas existentes o la posicion inicial del jugador.
+ */
 void generar_interruptores(nivel_t* nivel, int cantidad_interruptores, int tamanio_terreno){
     coordenada_t coordenada;
     int indice_inicial = nivel->tope_herramientas;
@@ -345,6 +450,7 @@ void generar_interruptores(nivel_t* nivel, int cantidad_interruptores, int taman
         nivel->tope_herramientas++;
     }
 }
+
 
 void generar_papeleos(nivel_t* nivel, int cantidad_papeleos, int tamanio_terreno){
     nivel->tope_papeleos = 0;
