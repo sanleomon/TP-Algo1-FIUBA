@@ -451,7 +451,14 @@ void generar_interruptores(nivel_t* nivel, int cantidad_interruptores, int taman
     }
 }
 
-
+/* Pre-condiciones: El puntero al nivel debe ser valido, la cantidad de papeleos debe
+ *      ser no negativa y el tamaño del terreno debe corresponder al nivel.
+ * Post-condiciones: Genera la cantidad indicada de papeleos en posiciones aleatorias
+ *      validas del terreno, evitando superposiciones con paredes, obstaculos,
+ *      herramientas, otros papeleos o la posicion inicial del jugador. Ademas,
+ *      asigna a cada papeleo su id correspondiente e inicializa su estado de
+ *      recoleccion en false.
+ */
 void generar_papeleos(nivel_t* nivel, int cantidad_papeleos, int tamanio_terreno){
     nivel->tope_papeleos = 0;
     coordenada_t coordenada;
@@ -474,6 +481,14 @@ void generar_papeleos(nivel_t* nivel, int cantidad_papeleos, int tamanio_terreno
     }
 }
 
+/* Pre-condiciones: El puntero al jugador debe ser valido, el nivel actual debe
+ *      corresponder a un nivel valido (entre 0,1 o 2) y el vector de niveles 
+ *      debe estar correctamente inicializado.
+ * Post-condiciones: Inicializa los datos del jugador para el nivel indicado,
+ *      asignando su posicion inicial, movimientos, herramientas, estado del
+ *      interruptor ahuyenta Randall y cantidad de movimientos realizados.
+ *      Tambien aplica el obsequio correspondiente al personaje obtenido en el TP1.
+ */
 void inicializar_datos_jugador(jugador_t* jugador, int nivel_actual, 
     nivel_t* niveles, char personaje_tp_1){
     jugador->posicion = niveles[nivel_actual].pos_inicial_jugador;
@@ -501,6 +516,12 @@ void inicializar_datos_jugador(jugador_t* jugador, int nivel_actual,
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido, el numero de nivel debe
+ *      corresponder a un valor entre 0,1 o 2 y el personaje recibido debe ser valido.
+ * Post-condiciones: Inicializa completamente el nivel indicado, cargando paredes,
+ *      posicion inicial del jugador, obstaculos, herramientas y papeleos segun
+ *      la configuracion correspondiente al nivel y al personaje recibido.
+ */
 void inicializar_nivel(nivel_t* nivel, int numero_nivel, char amigo_pide_favor){
 
     int dimension = obtener_dimension_terreno(numero_nivel);
@@ -535,6 +556,11 @@ void inicializar_juego(juego_t* juego, char personaje_tp1){
     inicializar_datos_jugador(&juego->jugador, juego->nivel_actual, juego->niveles,personaje_tp1);
 }
 
+/* Pre-condiciones: El terreno debe estar correctamente inicializado y el nivel
+ *      recibido debe contener sus paredes cargadas.
+ * Post-condiciones: Carga en la matriz del terreno todas las paredes correspondientes
+ *      al nivel recibido.
+ */
 void cargar_paredes(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], nivel_t nivel){
     int fil = 0;
     int col = 0;
@@ -547,11 +573,20 @@ void cargar_paredes(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], nivel_t nive
     }
 }
 
+/* Pre-condiciones: El terreno debe estar correctamente inicializado y la posicion
+ *      del jugador debe ser valida dentro de los limites del mapa.
+ * Post-condiciones: Carga en la matriz del terreno la posicion actual del jugador.
+ */
 void cargar_posicion_jugador(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], 
     coordenada_t posicion_jugador){
         terreno[posicion_jugador.fil][posicion_jugador.col] = MIKE;
 }
 
+/* Pre-condiciones: El terreno debe estar correctamente inicializado y el nivel
+ *      recibido debe contener sus obstaculos cargados.
+ * Post-condiciones: Carga en la matriz del terreno todos los obstaculos del nivel,
+ *      representando cada uno con el caracter correspondiente a su tipo.
+ */
 void cargar_obstaculos(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], nivel_t nivel){
     int fil = 0;
     int col = 0;
@@ -568,6 +603,11 @@ void cargar_obstaculos(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], nivel_t n
     }
 }
 
+/* Pre-condiciones: El terreno debe estar correctamente inicializado y el nivel
+ *      recibido debe contener sus herramientas cargadas.
+ * Post-condiciones: Carga en la matriz del terreno todas las herramientas del nivel,
+ *      representando cada una con el caracter correspondiente a su tipo.
+ */
 void cargar_herramientas(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], nivel_t nivel){
     int fil = 0;
     int col = 0;
@@ -584,6 +624,11 @@ void cargar_herramientas(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], nivel_t
     }
 }
 
+/* Pre-condiciones: El terreno debe estar correctamente inicializado y el nivel
+ *      recibido debe contener sus papeleos cargados.
+ * Post-condiciones: Carga en la matriz del terreno unicamente los papeleos que
+ *      no hayan sido recolectados, representandolos con su identificador.
+ */
 void cargar_papeleos(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], nivel_t nivel){
     int fil = 0;
     int col = 0;
@@ -598,6 +643,10 @@ void cargar_papeleos(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], nivel_t niv
     }
 }
 
+/* Pre-condiciones: El tamaño del terreno debe corresponder a la dimension del nivel.
+ * Post-condiciones: Inicializa la matriz del terreno llenando todas sus posiciones
+ *      con espacios vacios.
+ */
 void generar_terreno(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], int tamanio_terreno){
     for (int i = 0; i < tamanio_terreno; i++){
         for (int j = 0; j < tamanio_terreno; j++){
@@ -606,6 +655,11 @@ void generar_terreno(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], int tamanio
     }
 }
 
+/* Pre-condiciones: El terreno debe estar correctamente inicializado y el juego
+ *      debe contener sus estructuras validas.
+ * Post-condiciones: Carga en la matriz del terreno todos los elementos del nivel
+ *      actual (paredes, jugador, obstaculos, herramientas y papeleos).
+ */
 void cargar_terreno(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], juego_t juego){
     cargar_paredes(terreno, juego.niveles[juego.nivel_actual]);
     cargar_posicion_jugador(terreno, juego.jugador.posicion);
@@ -614,6 +668,10 @@ void cargar_terreno(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], juego_t jueg
     cargar_papeleos(terreno, juego.niveles[juego.nivel_actual]);
 }
 
+/* Pre-condiciones: El terreno debe estar correctamente inicializado y el tamaño
+ *      debe corresponder a la dimension del nivel.
+ * Post-condiciones: Imprime por pantalla la representacion del terreno recibido.
+ */
 void imprimir_mapa(char terreno[TERRENO_NIVEL_1][TERRENO_NIVEL_1], int tamanio_terreno){
     for (int i = 0; i < tamanio_terreno; i++){
         for (int j = 0; j < tamanio_terreno; j++){
@@ -654,6 +712,7 @@ void imprimir_terreno(juego_t juego){
     }
 }
 
+
 int estado_nivel(papeleo_t papeleos[MAX_PAPELEOS], int tope_papeleos){
     int cantidad_recolectados = 0;
     for (int i = 0; i < tope_papeleos; i++){
@@ -669,6 +728,10 @@ int estado_nivel(papeleo_t papeleos[MAX_PAPELEOS], int tope_papeleos){
     return JUGANDO;
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido.
+ * Post-condiciones: Avanza al siguiente nivel si el actual no es el ultimo,
+ *      reinicializando los datos del jugador para el nuevo nivel.
+ */
 void cambiar_nivel(juego_t* juego){
     if (juego->nivel_actual < NIVEL_3){
         juego->nivel_actual++;
@@ -689,6 +752,11 @@ int estado_juego(juego_t juego){
     return 0;
 }
 
+/* Pre-condiciones: La coordenada debe ser valida y la dimension debe corresponder
+ *      al tamanio del terreno.
+ * Post-condiciones: Devuelve una nueva coordenada resultante de rotar la coordenada
+ *      original 90 grados en sentido horario dentro del terreno.
+ */
 coordenada_t rotar_coordenada_horaria(coordenada_t coordenada, int dimension){
     coordenada_t nueva_coordenada;
 
@@ -698,6 +766,11 @@ coordenada_t rotar_coordenada_horaria(coordenada_t coordenada, int dimension){
     return nueva_coordenada;
 }
 
+/* Pre-condiciones: La coordenada debe ser valida y la dimension debe corresponder
+ *      al tamanio del terreno.
+ * Post-condiciones: Devuelve una nueva coordenada resultante de rotar la coordenada
+ *      original 90 grados en sentido antihorario dentro del terreno.
+ */
 coordenada_t rotar_coordenada_antihoraria(coordenada_t coordenada, int dimension){
     coordenada_t nueva_coordenada;
 
@@ -707,18 +780,31 @@ coordenada_t rotar_coordenada_antihoraria(coordenada_t coordenada, int dimension
     return nueva_coordenada;
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y la dimension debe
+ *      corresponder al tamanio del terreno.
+ * Post-condiciones: Rota todas las paredes del nivel 90 grados en sentido horario.
+ */
 void rotar_paredes_horario(nivel_t* nivel, int dimension){
     for (int i = 0; i < nivel->tope_paredes; i++){
         nivel->paredes[i] = rotar_coordenada_horaria(nivel->paredes[i], dimension);
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y la dimension debe
+ *      corresponder al tamanio del terreno.
+ * Post-condiciones: Rota todas las paredes del nivel 90 grados en sentido antihorario.
+ */
 void rotar_paredes_antihorario(nivel_t* nivel, int dimension){
     for (int i = 0; i < nivel->tope_paredes; i++){
         nivel->paredes[i] = rotar_coordenada_antihoraria(nivel->paredes[i], dimension);
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y la dimension debe
+ *      corresponder al tamanio del terreno.
+ * Post-condiciones: Rota todas las posiciones de los obstaculos del nivel
+ *      90 grados en sentido horario.
+ */
 void rotar_obstaculos_horario(nivel_t* nivel, int dimension){
     for (int i = 0; i < nivel->tope_obstaculos; i++){
         nivel->obstaculos[i].posicion =
@@ -726,6 +812,11 @@ void rotar_obstaculos_horario(nivel_t* nivel, int dimension){
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y la dimension debe
+ *      corresponder al tamanio del terreno.
+ * Post-condiciones: Rota todas las posiciones de los obstaculos del nivel
+ *      90 grados en sentido antihorario.
+ */
 void rotar_obstaculos_antihorario(nivel_t* nivel, int dimension){
     for (int i = 0; i < nivel->tope_obstaculos; i++){
         nivel->obstaculos[i].posicion =
@@ -733,6 +824,11 @@ void rotar_obstaculos_antihorario(nivel_t* nivel, int dimension){
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y la dimension debe
+ *      corresponder al tamanio del terreno.
+ * Post-condiciones: Rota todas las posiciones de las herramientas del nivel
+ *      90 grados en sentido horario.
+ */
 void rotar_herramientas_horario(nivel_t* nivel, int dimension){
     for (int i = 0; i < nivel->tope_herramientas; i++){
         nivel->herramientas[i].posicion =
@@ -740,6 +836,11 @@ void rotar_herramientas_horario(nivel_t* nivel, int dimension){
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y la dimension debe
+ *      corresponder al tamanio del terreno.
+ * Post-condiciones: Rota todas las posiciones de las herramientas del nivel
+ *      90 grados en sentido antihorario.
+ */
 void rotar_herramientas_antihorario(nivel_t* nivel, int dimension){
     for (int i = 0; i < nivel->tope_herramientas; i++){
         nivel->herramientas[i].posicion =
@@ -747,6 +848,11 @@ void rotar_herramientas_antihorario(nivel_t* nivel, int dimension){
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y la dimension debe
+ *      corresponder al tamanio del terreno.
+ * Post-condiciones: Rota todas las posiciones de los papeleos del nivel
+ *      90 grados en sentido horario.
+ */
 void rotar_papeleos_horario(nivel_t* nivel, int dimension){
     for (int i = 0; i < nivel->tope_papeleos; i++){
         nivel->papeleos[i].posicion =
@@ -754,6 +860,11 @@ void rotar_papeleos_horario(nivel_t* nivel, int dimension){
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y la dimension debe
+ *      corresponder al tamanio del terreno.
+ * Post-condiciones: Rota todas las posiciones de los papeleos del nivel
+ *      90 grados en sentido antihorario.
+ */
 void rotar_papeleos_antihorario(nivel_t* nivel, int dimension){
     for (int i = 0; i < nivel->tope_papeleos; i++){
         nivel->papeleos[i].posicion =
