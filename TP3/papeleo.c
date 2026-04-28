@@ -872,6 +872,11 @@ void rotar_papeleos_antihorario(nivel_t* nivel, int dimension){
     }
 }
 
+/* Pre-condiciones: La posicion del jugador debe ser valida y la direccion debe
+ *      corresponder a una direccion valida para usar el martillo.
+ * Post-condiciones: Devuelve la coordenada adyacente al jugador en la direccion
+ *      indicada.
+ */
 coordenada_t obtener_posicion_martillo(coordenada_t posicion_jugador, char direccion){
     coordenada_t objetivo = posicion_jugador;
 
@@ -888,6 +893,11 @@ coordenada_t obtener_posicion_martillo(coordenada_t posicion_jugador, char direc
     return objetivo;
 }
 
+/* Pre-condiciones: La posicion del jugador debe ser valida y la direccion debe
+ *      corresponder a una direccion valida para usar el extintor.
+ * Post-condiciones: Devuelve la coordenada adyacente al jugador en la direccion
+ *      indicada.
+ */
 coordenada_t obtener_posicion_extintor(coordenada_t posicion_jugador, char direccion){
     coordenada_t objetivo = posicion_jugador;
 
@@ -902,6 +912,11 @@ coordenada_t obtener_posicion_extintor(coordenada_t posicion_jugador, char direc
     return objetivo;
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y el indice recibido debe
+ *      corresponder a una pared existente dentro del vector de paredes.
+ * Post-condiciones: Elimina la pared indicada del vector, desplazando los elementos
+ *      restantes y actualizando el tope de paredes.
+ */
 void eliminar_pared(nivel_t* nivel, int indice){
     for (int i = indice; i < nivel->tope_paredes - 1; i++){
         nivel->paredes[i] = nivel->paredes[i + 1];
@@ -910,6 +925,11 @@ void eliminar_pared(nivel_t* nivel, int indice){
     nivel->tope_paredes--;
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y el indice recibido debe
+ *      corresponder a un obstaculo de tipo fuego existente dentro del vector de obstaculos.
+ * Post-condiciones: Elimina el fuego indicado del vector de obstaculos, desplazando los elementos
+ *      restantes y actualizando el tope de obstaculos.
+ */
 void eliminar_fuego(nivel_t* nivel, int indice){
     for (int i = indice; i < nivel->tope_obstaculos - 1; i++){
         nivel->obstaculos[i] = nivel->obstaculos[i + 1];
@@ -918,6 +938,11 @@ void eliminar_fuego(nivel_t* nivel, int indice){
     nivel->tope_obstaculos--;
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido y el vector de papeleos
+ *      debe estar correctamente inicializado.
+ * Post-condiciones: Devuelve el indice de un papeleo no recolectado elegido al azar.
+ *      Si no quedan papeleos disponibles, devuelve -1.
+ */
 int obtener_indice_papeleo_random(nivel_t* nivel){
     int indices[MAX_PAPELEOS];
     int cantidad = 0;
@@ -940,6 +965,12 @@ int obtener_indice_papeleo_random(nivel_t* nivel){
     return indices[elegido];
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido, el nivel actual debe ser
+ *      valido.
+ * Post-condiciones: Si corresponde, segun la logica de Randall, y el interruptor
+ *      ahuyenta Randall no esta activado, mueve aleatoriamente un papeleo no
+ *      recolectado a una nueva posicion valida del terreno.
+ */
 void mover_papeleo_random(nivel_t* nivel, int nivel_actual, jugador_t jugador){
     int r = obtener_valor_randall(nivel_actual);
 
