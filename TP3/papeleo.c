@@ -1001,6 +1001,10 @@ void mover_papeleo_random(nivel_t* nivel, int nivel_actual, jugador_t jugador){
     }
 }
 
+/* Pre-condiciones: El nivel actual debe corresponder a un nivel valido del juego.
+ * Post-condiciones: Devuelve la cantidad maxima de movimientos durante los cuales
+ *      se pueden generar paredes aleatorias en el nivel indicado.
+ */
 int obtener_limite_paredes_random(int nivel_actual){
     if (nivel_actual == NIVEL_1){
         return MOVIMIENTOS_NIVEL_1;
@@ -1011,6 +1015,12 @@ int obtener_limite_paredes_random(int nivel_actual){
     }
 }
 
+/* Pre-condiciones: El puntero al nivel debe ser valido, el nivel actual debe ser
+ *      valido y el jugador debe contener una posicion valida.
+ * Post-condiciones: Genera una nueva pared en una posicion aleatoria valida y libre
+ *      del terreno, evitando superposiciones con paredes, obstaculos, herramientas,
+ *      papeleos o el jugador.
+ */
 void generar_pared_random(nivel_t* nivel, int nivel_actual, jugador_t jugador){
     int dimension = obtener_dimension_terreno(nivel_actual);
 
@@ -1033,6 +1043,12 @@ void generar_pared_random(nivel_t* nivel, int nivel_actual, jugador_t jugador){
     nivel->tope_paredes++;
 }
 
+/* Pre-condiciones: El puntero al nivel y al jugador deben ser validos, y el nivel
+ *      actual debe corresponder a un nivel valido del juego.
+ * Post-condiciones: Solicita una direccion valida al usuario. Si en la posicion
+ *      indicada hay un fuego, lo elimina del vector de obstaculos y descuenta un
+ *      extintor al jugador.
+ */
 void usar_extintor(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
 
     char direccion;
@@ -1068,6 +1084,12 @@ void usar_extintor(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
     }
 }
 
+/* Pre-condiciones: El puntero al nivel y al jugador deben ser validos, y el nivel
+ *      actual debe corresponder a un nivel valido del juego.
+ * Post-condiciones: Solicita una direccion valida al usuario. Si en la posicion
+ *      indicada hay una pared que no pertenece al borde del terreno, la elimina
+ *      del vector de paredes y descuenta un martillo al jugador.
+ */
 void usar_martillo(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
 
     int dimension = obtener_dimension_terreno(nivel_actual);
@@ -1105,6 +1127,11 @@ void usar_martillo(nivel_t * nivel, int nivel_actual, jugador_t* jugador){
     }
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido y el nivel actual debe
+ *      contener sus obstaculos cargados correctamente.
+ * Post-condiciones: Si el jugador se encuentra sobre un fuego, pierde todos sus
+ *      movimientos. Si se encuentra sobre una media, pierde 10 movimientos.
+ */
 void aplicar_colision_obstaculos(juego_t* juego){
     nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
     coordenada_t posicion_jugador = juego->jugador.posicion;
@@ -1128,6 +1155,12 @@ void aplicar_colision_obstaculos(juego_t* juego){
     }
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido y el nivel actual debe
+ *      contener sus herramientas cargadas correctamente.
+ * Post-condiciones: Si el jugador se encuentra sobre una botella de gritos, gana
+ *      7 movimientos y la herramienta se elimina. Si se encuentra sobre un interruptor,
+ *      cambia el estado del ahuyenta Randall.
+ */
 void aplicar_colision_herramientas(juego_t* juego){
     nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
     coordenada_t posicion_jugador = juego->jugador.posicion;
@@ -1152,6 +1185,12 @@ void aplicar_colision_herramientas(juego_t* juego){
     }
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido y el nivel actual debe
+ *      contener sus papeleos cargados correctamente.
+ * Post-condiciones: Si el jugador se encuentra sobre un papeleo no recolectado,
+ *      lo marca como recolectado unicamente si todos los papeleos con id menor
+ *      ya fueron recolectados.
+ */
 void aplicar_colision_papeleos(juego_t* juego){
     nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
     coordenada_t posicion_jugador = juego->jugador.posicion;
@@ -1177,6 +1216,11 @@ void aplicar_colision_papeleos(juego_t* juego){
     }
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido.
+ * Post-condiciones: Aplica las interacciones correspondientes entre el jugador
+ *      y los elementos ubicados en su posicion actual: obstaculos, herramientas
+ *      y papeleos.
+ */
 void aplicar_colision(juego_t* juego){
     aplicar_colision_obstaculos(juego);
     aplicar_colision_herramientas(juego);
