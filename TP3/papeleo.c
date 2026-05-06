@@ -1227,6 +1227,12 @@ void aplicar_colision(juego_t* juego){
     aplicar_colision_papeleos(juego);
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido y el jugador debe estar
+ *      en una posicion valida dentro del nivel actual.
+ * Post-condiciones: Hace caer al jugador mientras no tenga una pared debajo.
+ *      Durante la caida aplica las colisiones correspondientes y actualiza la
+ *      visualizacion del terreno.
+ */
 void aplicar_gravedad(juego_t* juego){
     nivel_t nivel_actual = juego->niveles[juego->nivel_actual];
     coordenada_t abajo = juego->jugador.posicion;
@@ -1249,6 +1255,12 @@ void aplicar_gravedad(juego_t* juego){
     }
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido y el jugador debe haber
+ *      realizado un movimiento lateral o rotacional valido.
+ * Post-condiciones: Aplica los efectos posteriores al movimiento: posible
+ *      desplazamiento de un papeleo por Randall y generacion de una pared
+ *      aleatoria si corresponde.
+ */
 void aplicar_eventos_post_movimiento(juego_t* juego){
     mover_papeleo_random(&juego->niveles[juego->nivel_actual],
         juego->nivel_actual, juego->jugador);
@@ -1260,6 +1272,12 @@ void aplicar_eventos_post_movimiento(juego_t* juego){
     }
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido y la respuesta debe ser
+ *      un movimiento lateral valido (A o D).
+ * Post-condiciones: Si no hay una pared en la posicion destino, mueve al jugador,
+ *      descuenta un movimiento, incrementa la cantidad de movimientos realizados,
+ *      aplica colisiones, gravedad y efectos posteriores al movimiento.
+ */
 void procesar_movimiento_lateral(juego_t* juego, char respuesta){
     coordenada_t destino = juego->jugador.posicion;
 
@@ -1286,6 +1304,12 @@ void procesar_movimiento_lateral(juego_t* juego, char respuesta){
     }
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido y la respuesta debe ser
+ *      una rotacion valida (E o Q).
+ * Post-condiciones: Rota todos los elementos del nivel actual y al jugador en el
+ *      sentido indicado, descuenta un movimiento, incrementa la cantidad de
+ *      movimientos realizados, aplica gravedad y efectos posteriores al movimiento.
+ */
 void procesar_rotacion(juego_t* juego, char respuesta){
     int dimension = obtener_dimension_terreno(juego->nivel_actual);
 
@@ -1318,6 +1342,11 @@ void procesar_rotacion(juego_t* juego, char respuesta){
     aplicar_eventos_post_movimiento(juego);
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido.
+ * Post-condiciones: Si el jugador tiene martillos disponibles, procesa el uso
+ *      del martillo y aplica gravedad si corresponde. En caso contrario, informa
+ *      al usuario que no le quedan martillos.
+ */
 void procesar_martillo(juego_t* juego){
     if (juego->jugador.martillos > 0){
         usar_martillo(&juego->niveles[juego->nivel_actual],
@@ -1333,6 +1362,11 @@ void procesar_martillo(juego_t* juego){
     }
 }
 
+/* Pre-condiciones: El puntero al juego debe ser valido.
+ * Post-condiciones: Si el jugador tiene extintores disponibles, procesa el uso
+ *      del extintor. En caso contrario, informa al usuario que no le quedan
+ *      extintores.
+ */
 void procesar_extintor(juego_t* juego){
     if (juego->jugador.extintores > 0){
         usar_extintor(&juego->niveles[juego->nivel_actual],
